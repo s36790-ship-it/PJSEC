@@ -36,12 +36,12 @@ def client_send_task():
 @app.route("/c/tasks/<id>", methods=["GET"])
 def client_get_task(id: int):
     task = db.get_or_404(Task, id)
-    return {"id": task.id, "type": task.type, "cmd": task.cmd, "completed": task.completed, "result": task.result}
+    return {"id": task.id, "type": task.type, "cmd": task.cmd, "completed": task.completed, "error": task.error, "result": task.result}
 
 # AGENT ENDPOINTS
 @app.route("/a/tasks", methods=["GET"])
 def agent_get_pending_task():
-    task = db.session.execute(db.select(Task).filter_by(completed=False)).scalars().first()
+    task = db.session.execute(db.select(Task).filter_by(completed=False, error=False)).scalars().first()
     if task:
         return {"id": task.id, "type": task.type, "cmd": task.cmd}
     return "No tasks", 404
@@ -51,7 +51,8 @@ def agent_post_result():
     task = None
     if request.json["id"]:
         task = db.get_or_404(Task, request.json["id"])
-    task.completed = True
+    task.completed = not request.json["errored"]
+    task.error = request.json["errored"]
     task.result = request.json["stdout"]
     db.session.commit()
     return "gitówa", 200

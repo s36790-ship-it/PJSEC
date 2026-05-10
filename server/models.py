@@ -2,7 +2,7 @@ from typing import Optional
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from utils import ValidationError
@@ -19,7 +19,8 @@ class Task(db.Model):
     type: Mapped[str] = mapped_column(String(16))
     cmd: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     completed: Mapped[bool] = mapped_column(default=False)
-    result: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True, default=None)
+    error: Mapped[bool] = mapped_column(default=False)
+    result = db.Column(Text)
 
     def validate(self):
         if self.type is None:
