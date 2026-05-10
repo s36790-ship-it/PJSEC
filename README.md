@@ -13,9 +13,17 @@ cd server
 flask --app main run
 ```
 
-## To start agent
+## To start agent (with python)
 
 ```bash
 cd agent
 python agent.py
 ```
+
+## To build agent with pyinstaller
+
+```bash
+cd agent
+python -m pyinstaller agent.py -w -F
+```
+Builds agent.exe that runs in background (on Windows, pyinstaller creates exectuable based on system its running on)
