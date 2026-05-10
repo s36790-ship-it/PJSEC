@@ -27,3 +27,18 @@ cd agent
 python -m pyinstaller agent.py -w -F
 ```
 Builds agent.exe that runs in background (on Windows, pyinstaller creates exectuable based on system its running on)
+
+
+## Example requests to server
+
+```bash
+# Post task with ls command
+curl -ks -X POST http://127.0.0.1:5000/c/tasks \
+    -H 'Content-Type: application/json' \
+    -d '{"type":"command","cmd":"ls"}'
+
+# Get task status and result
+curl -ks http://127.0.0.1:5000/c/tasks/1
+```
+For windows targets use powershell commands.
+On windows instead of `curl` you can use `Invoke-RestMethod`
